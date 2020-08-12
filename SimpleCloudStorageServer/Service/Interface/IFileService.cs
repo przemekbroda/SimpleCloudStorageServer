@@ -11,8 +11,8 @@ namespace SimpleCloudStorageServer.Service
     {
         void CreateDirectory(string directoryName);
         void RemoveDirectory(string directoryName);
-        void SaveFile(string path, string fileName, IFormFile formFile);
+        Task<string> SaveFile(string directory, string fileName, IFormFile formFile);
         void DeleteFile(string path);
-        void GetFile(string path);
+        Task<byte[]> GetFile(string path);
     }
 }

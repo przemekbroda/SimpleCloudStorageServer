@@ -12,8 +12,13 @@ namespace SimpleCloudStorageServer.Repository
         public DbSet<File> Files { get; set; }
         public DbSet<User> Users { get; set; }
 
-        public DataContext(DbContextOptions<DataContext> options) : base(options)
+        public DataContext(DbContextOptions<DataContext> options) : base(options) { }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<User>()
+                .HasIndex(u => new { u.AppId, u.Username })
+                .IsUnique(true);
         }
     }
 }

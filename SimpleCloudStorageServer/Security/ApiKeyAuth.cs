@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SimpleCloudStorageServer.Repository;
@@ -8,12 +9,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace SimpleCloudStorageServer.Security
 {
     public class ApiKeyAuth : AuthenticationHandler<ApiKeyAuthOptions>
     {
+
+        private const string ProblemDetailsContentType = "application/problem+json";
 
         private readonly IUserCachedService _userCachedService;
         private readonly IPasswordService _passwordService;
@@ -34,11 +38,12 @@ namespace SimpleCloudStorageServer.Security
 
             if (user == null) return AuthenticateResult.Fail("Invalid API Key or APP ID");
 
-            if (_passwordService.VerifyPassword(apiKey, user.ApiKeyHash, user.ApiKeySalt)) return AuthenticateResult.Fail("Invalid API Key or APP ID");
+            if (!_passwordService.VerifyPassword(apiKey.FirstOrDefault(), user.ApiKeyHash, user.ApiKeySalt)) return AuthenticateResult.Fail("Invalid API Key or APP ID");
 
             var claims = new[]{
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.Username)
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.Role, "user")
             };
 
             var identity = new ClaimsIdentity(claims);
@@ -48,5 +53,10 @@ namespace SimpleCloudStorageServer.Security
 
             return AuthenticateResult.Success(ticket);
         }
+
+
+        
+
+        
     }
 }

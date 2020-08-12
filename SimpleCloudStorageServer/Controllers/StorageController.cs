@@ -1,27 +1,44 @@
-﻿using System.Threading.Tasks;
+﻿using System.Security.Claims;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.StaticFiles;
 using SimpleCloudStorageServer.Security;
+using SimpleCloudStorageServer.Service;
 
 namespace SimpleCloudStorageServer.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
-    [Authorize(AuthenticationSchemes = ApiKeyAuthOptions.DefaultScheme)]
+    [Authorize(AuthenticationSchemes = ApiKeyAuthOptions.DefaultScheme, Roles = "user")]
     public class StorageController : ControllerBase
     {
 
+        private readonly IStorageService _storageService;
+
+        public StorageController(IStorageService storageService) 
+        {
+            _storageService = storageService;
+        }
+
         [AllowAnonymous]
         [HttpGet("{appid}/{fileName}")]
-        public async Task<IActionResult> Getfile(string appid, string filename)
+        public async Task<IActionResult> GetFile(string appid, string filename)
         {
-            return Ok("ok");
+            var file = await _storageService.GetFile(appid, filename);
+
+            new FileExtensionContentTypeProvider().TryGetContentType(file.Item2, out var contentType);
+
+            return File(file.Item1, contentType);
         }
 
         [HttpPost]
-        public async Task<IActionResult> UploadFile()
+        public async Task<IActionResult> UploadFile(IFormFile file)
         {
-            return Ok("ok");
+            var userId = long.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+
+            return Ok(await _storageService.UploadFile(file, userId));
         }
 
         [HttpDelete("{fileName}")]

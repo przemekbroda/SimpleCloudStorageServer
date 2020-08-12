@@ -10,8 +10,8 @@ using SimpleCloudStorageServer.Repository;
 namespace SimpleCloudStorageServer.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20200810143311_ApiKeyAdded")]
-    partial class ApiKeyAdded
+    [Migration("20200811213329_Init")]
+    partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -88,6 +88,9 @@ namespace SimpleCloudStorageServer.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AppId", "Username")
+                        .IsUnique();
 
                     b.ToTable("user");
                 });

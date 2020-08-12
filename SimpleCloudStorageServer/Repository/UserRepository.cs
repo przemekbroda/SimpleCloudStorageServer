@@ -36,7 +36,7 @@ namespace SimpleCloudStorageServer.Repository
         {
             return await _context
                 .Users
-                .Where(u => u.Username.ToLower() == username)
+                .Where(u => u.Username.ToLower() == username.ToLower())
                 .FirstOrDefaultAsync();
         }
 

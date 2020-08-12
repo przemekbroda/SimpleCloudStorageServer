@@ -10,8 +10,8 @@ using SimpleCloudStorageServer.Repository;
 namespace SimpleCloudStorageServer.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20200809141911_AddedUserDeletionTime")]
-    partial class AddedUserDeletionTime
+    [Migration("20200811214519_UserDeletionAtToNullable")]
+    partial class UserDeletionAtToNullable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -60,11 +60,23 @@ namespace SimpleCloudStorageServer.Migrations
                         .HasColumnType("bigint")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<string>("ApiKey")
+                    b.Property<byte[]>("ApiKeyHash")
+                        .HasColumnType("bytea");
+
+                    b.Property<byte[]>("ApiKeySalt")
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("AppId")
                         .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime?>("DeletionAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("MainDirectory")
+                        .HasColumnType("text");
 
                     b.Property<byte[]>("PasswordHash")
                         .HasColumnType("bytea");
@@ -76,6 +88,9 @@ namespace SimpleCloudStorageServer.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AppId", "Username")
+                        .IsUnique();
 
                     b.ToTable("user");
                 });

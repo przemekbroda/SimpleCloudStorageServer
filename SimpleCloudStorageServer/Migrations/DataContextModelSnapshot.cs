@@ -70,7 +70,7 @@ namespace SimpleCloudStorageServer.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<DateTime>("DeletionAt")
+                    b.Property<DateTime?>("DeletionAt")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("MainDirectory")
@@ -86,6 +86,9 @@ namespace SimpleCloudStorageServer.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AppId", "Username")
+                        .IsUnique();
 
                     b.ToTable("user");
                 });

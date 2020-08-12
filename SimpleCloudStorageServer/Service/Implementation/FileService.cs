@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using SimpleCloudStorageServer.Helper.Exceptions;
 using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace SimpleCloudStorageServer.Service
 {
@@ -18,7 +19,7 @@ namespace SimpleCloudStorageServer.Service
 
         public void CreateDirectory(string directoryName)
         {
-            var path = $"${_storagePath}/${directoryName}"; 
+            var path = $"{_storagePath}\\{directoryName}"; 
 
             if (Directory.Exists(path))
             {
@@ -30,12 +31,17 @@ namespace SimpleCloudStorageServer.Service
 
         public void DeleteFile(string path)
         {
-            throw new NotImplementedException();
+
         }
 
-        public void GetFile(string path)
+        public async Task<byte[]> GetFile(string path)
         {
-            throw new NotImplementedException();
+            if (!File.Exists(path))
+            {
+                throw new FileNotFoundException();
+            }
+
+            return await File.ReadAllBytesAsync(path);
         }
 
         public void RemoveDirectory(string directoryName)
@@ -50,9 +56,21 @@ namespace SimpleCloudStorageServer.Service
             Directory.Delete(directoryName);
         }
 
-        public void SaveFile(string path, string fileName, IFormFile formFile)
+        public async Task<string> SaveFile(string directory, string fileName, IFormFile formFile)
         {
-            throw new NotImplementedException();
+            var filePath = Path.Combine(_storagePath, directory, fileName + Path.GetExtension(formFile.FileName));
+
+            if (File.Exists(filePath))
+            {
+                throw new FileAlreadyExistsException();
+            }
+
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await formFile.CopyToAsync(fileStream);
+            }
+
+            return filePath;
         }
 
     }

@@ -23,7 +23,7 @@ namespace SimpleCloudStorageServer.Controllers
             _userService = userService;
         }
 
-        [HttpGet]
+        [HttpPost]
         public async Task<IActionResult> Login(LoginDto loginDto)
         {
             return Ok(await _userService.Login(loginDto));

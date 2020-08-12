@@ -2,6 +2,7 @@
 using SimpleCloudStorageServer.Dto;
 using SimpleCloudStorageServer.Helper;
 using SimpleCloudStorageServer.Helper.Exceptions;
+using SimpleCloudStorageServer.Model;
 using SimpleCloudStorageServer.Repository;
 using System;
 using System.Collections.Generic;
@@ -36,6 +37,8 @@ namespace SimpleCloudStorageServer.Service
             {
                 throw new RegisterException("Such user does exists");
             }
+
+            user = new User();
 
             while (true)
             {

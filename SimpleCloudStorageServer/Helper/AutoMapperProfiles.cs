@@ -15,6 +15,8 @@ namespace SimpleCloudStorageServer.Helper
             CreateMap(typeof(PagedList<>), typeof(PagedListDto<>));
             CreateMap<User, UserForDetailsDto>();
             CreateMap<User, UserForDeleteDto>();
+            CreateMap<User, UserForRegisterResultDto>();
+            CreateMap<File, FileForUploadDto>();
         }
     }
 }

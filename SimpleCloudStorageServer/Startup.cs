@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -77,6 +78,15 @@ namespace SimpleCloudStorageServer
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IFileService, FileService>();
+            services.AddScoped<ICacheProvider, CasheProvider>();
+            services.AddScoped<IUserCachedService, UserCachedService>();
+            services.AddScoped<IJwtTokenService, JwtTokenService>();
+            services.AddScoped<IStorageService, StorageService>();
+            services.AddScoped<IFileRepository, FileRepository>();
+
+            services.AddMemoryCache();
+
+            services.AddHostedService<DeleteUserHostedService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

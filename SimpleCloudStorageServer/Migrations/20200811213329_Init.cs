@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace SimpleCloudStorageServer.Migrations
 {
-    public partial class Initial : Migration
+    public partial class Init : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -17,8 +17,12 @@ namespace SimpleCloudStorageServer.Migrations
                     Username = table.Column<string>(nullable: true),
                     PasswordHash = table.Column<byte[]>(nullable: true),
                     PasswordSalt = table.Column<byte[]>(nullable: true),
-                    ApiKey = table.Column<string>(nullable: true),
-                    CreatedAt = table.Column<DateTime>(nullable: false)
+                    ApiKeyHash = table.Column<byte[]>(nullable: true),
+                    ApiKeySalt = table.Column<byte[]>(nullable: true),
+                    AppId = table.Column<string>(nullable: true),
+                    MainDirectory = table.Column<string>(nullable: true),
+                    CreatedAt = table.Column<DateTime>(nullable: false),
+                    DeletionAt = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -53,6 +57,12 @@ namespace SimpleCloudStorageServer.Migrations
                 name: "IX_file_UserId",
                 table: "file",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_user_AppId_Username",
+                table: "user",
+                columns: new[] { "AppId", "Username" },
+                unique: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

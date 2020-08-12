@@ -26,11 +26,11 @@ namespace SimpleCloudStorageServer.Service
 
                 for (var i = 0; i < computedHash.Length; i++)
                 {
-                    if (userPasswordHash[i] != computedHash[i]) return false;
+                    if (computedHash[i] != userPasswordHash[i]) return false;
                 }
-
-                return true;
             }
+
+            return true;
         }
     }
 }

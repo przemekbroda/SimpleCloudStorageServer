@@ -17,7 +17,7 @@ namespace SimpleCloudStorageServer.Model
         public string AppId { get; set; }
         public string MainDirectory { get; set; }
         public DateTime CreatedAt { get; set; }
-        public DateTime DeletionAt { get; set; }
+        public DateTime? DeletionAt { get; set; }
         public ICollection<File> Files { get; set; }
 
     }
