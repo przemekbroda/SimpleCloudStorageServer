@@ -8,7 +8,6 @@ namespace SimpleCloudStorageServer.Repository
     public class UserCachedService : IUserCachedService
     {
 
-        private readonly SemaphoreSlim semaphore = new SemaphoreSlim(1);
         private readonly ICacheProvider _cacheProvider;
         private readonly IUserRepository _userRepository;
 
@@ -24,25 +23,9 @@ namespace SimpleCloudStorageServer.Repository
 
             if (user != null) return user;
 
-            try
-            {
-                await semaphore.WaitAsync();
+            user = await getUser();
 
-                user = _cacheProvider.GetFromCache<User>(key);
-
-                if (user != null)
-                {
-                    return user;
-                }
-
-                user = await getUser();
-
-                _cacheProvider.SetCache<User>(user.AppId, user);
-            }
-            finally
-            {
-                semaphore.Release();
-            }
+            if (user != null) _cacheProvider.SetCache(user.AppId, user);
 
             return user;
         }

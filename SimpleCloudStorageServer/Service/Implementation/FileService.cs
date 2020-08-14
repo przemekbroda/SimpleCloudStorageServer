@@ -19,7 +19,7 @@ namespace SimpleCloudStorageServer.Service
 
         public void CreateDirectory(string directoryName)
         {
-            var path = $"{_storagePath}\\{directoryName}"; 
+            var path = Path.Combine(_storagePath, directoryName);
 
             if (Directory.Exists(path))
             {
@@ -31,46 +31,55 @@ namespace SimpleCloudStorageServer.Service
 
         public void DeleteFile(string path)
         {
+            var fullPath = Path.Combine(_storagePath, path);
 
+            if (File.Exists(fullPath))
+            {
+                File.Delete(fullPath);
+            }
         }
 
         public async Task<byte[]> GetFile(string path)
         {
-            if (!File.Exists(path))
+            var fullPath = Path.Combine(_storagePath, path); 
+
+            if (!File.Exists(fullPath))
             {
                 throw new FileNotFoundException();
             }
 
-            return await File.ReadAllBytesAsync(path);
+            return await File.ReadAllBytesAsync(fullPath);
         }
 
         public void RemoveDirectory(string directoryName)
         {
-            var path = $"${_storagePath}/${directoryName}";
+            var path = Path.Combine(_storagePath, directoryName);
 
-            if (!Directory.Exists(directoryName))
+            if (!Directory.Exists(path))
             {
                 throw new DirectoryNotFoundException("Directory has not been found");
             }
 
-            Directory.Delete(directoryName);
+            Directory.Delete(path);
         }
 
         public async Task<string> SaveFile(string directory, string fileName, IFormFile formFile)
         {
-            var filePath = Path.Combine(_storagePath, directory, fileName + Path.GetExtension(formFile.FileName));
+            var shortPath = Path.Combine(directory, fileName + Path.GetExtension(formFile.FileName));
 
-            if (File.Exists(filePath))
+            var fullPath = Path.Combine(_storagePath, shortPath);
+
+            if (File.Exists(fullPath))
             {
                 throw new FileAlreadyExistsException();
             }
 
-            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            using (var fileStream = new FileStream(fullPath, FileMode.Create))
             {
                 await formFile.CopyToAsync(fileStream);
             }
 
-            return filePath;
+            return shortPath;
         }
 
     }

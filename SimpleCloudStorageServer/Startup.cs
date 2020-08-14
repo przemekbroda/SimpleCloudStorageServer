@@ -21,6 +21,7 @@ using SimpleCloudStorageServer.Helper;
 using SimpleCloudStorageServer.Repository;
 using SimpleCloudStorageServer.Security;
 using SimpleCloudStorageServer.Service;
+using SimpleCloudStorageServer.Service.Implementation;
 
 namespace SimpleCloudStorageServer
 {
@@ -83,6 +84,7 @@ namespace SimpleCloudStorageServer
             services.AddScoped<IJwtTokenService, JwtTokenService>();
             services.AddScoped<IStorageService, StorageService>();
             services.AddScoped<IFileRepository, FileRepository>();
+            services.AddScoped<IFileCachedService, FileCachedService>();
 
             services.AddMemoryCache();
 

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
+using SimpleCloudStorageServer.Dto;
 using SimpleCloudStorageServer.Security;
 using SimpleCloudStorageServer.Service;
 
@@ -41,10 +42,20 @@ namespace SimpleCloudStorageServer.Controllers
             return Ok(await _storageService.UploadFile(file, userId));
         }
 
+        [HttpPut("{fileName}")]
+        public async Task<IActionResult> UpdateFile(string fileName, FileForUpdateDto updateDto)
+        {
+            var userId = long.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+
+            return Ok(await _storageService.UpdateFile(userId, fileName, updateDto));
+        }
+
         [HttpDelete("{fileName}")]
         public async Task<IActionResult> RemoveFile(string fileName)
         {
-            return Ok("ok");
+            var userId = long.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+
+            return Ok(await _storageService.RemoveFile(userId, fileName));
         }
 
     }

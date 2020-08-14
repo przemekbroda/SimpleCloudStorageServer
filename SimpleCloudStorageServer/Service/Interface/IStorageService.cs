@@ -11,6 +11,7 @@ namespace SimpleCloudStorageServer.Service
     {
         public Task<Tuple<byte[], string>> GetFile(string appId, string fileName);
         public Task<FileForUploadDto> UploadFile(IFormFile file, long userId);
-        public void RemoveFile();
+        public Task<FileForUploadDto> RemoveFile(long userId, string fileName);
+        Task<object> UpdateFile(long userId, string fileName, FileForUpdateDto updateDto);
     }
 }

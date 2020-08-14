@@ -24,5 +24,14 @@ namespace SimpleCloudStorageServer.Repository
                 .Where(f => f.FileName == fileName && f.User.AppId == appId)
                 .FirstOrDefaultAsync();
         }
+
+        public async Task<File> GetFileByUserIdAndFileName(long userId, string fileName)
+        {
+            return await _context
+                .Files
+                .Include(f => f.User)
+                .Where(f => f.UserId == userId && f.FileName == fileName)
+                .FirstOrDefaultAsync();
+        }
     }
 }

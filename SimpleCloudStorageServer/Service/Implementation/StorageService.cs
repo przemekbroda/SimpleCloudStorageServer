@@ -5,6 +5,7 @@ using SimpleCloudStorageServer.Helper;
 using SimpleCloudStorageServer.Helper.Exceptions;
 using SimpleCloudStorageServer.Model;
 using SimpleCloudStorageServer.Repository;
+using SimpleCloudStorageServer.Service.Implementation;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -20,20 +21,22 @@ namespace SimpleCloudStorageServer.Service
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
         private readonly IFileRepository _fileRepository;
+        private readonly IFileCachedService _fileCachedService;
 
-        public StorageService(IFileService fileService, IUserRepository userRepository, IMapper mapper, IFileRepository fileRepository) 
+        public StorageService(IFileService fileService, IUserRepository userRepository, IMapper mapper, IFileRepository fileRepository, IFileCachedService fileCachedService) 
         {
             _fileService = fileService;
             _userRepository = userRepository;
             _mapper = mapper;
             _fileRepository = fileRepository;
+            _fileCachedService = fileCachedService;
         }
 
         public async Task<Tuple<byte[], string>> GetFile(string appId, string fileName)
         {
-            var file = await _fileRepository.GetFileByUserAppIdAndFileName(appId, fileName);
+            var file = await _fileCachedService.GetFile(appId, fileName);
 
-            if (file == null)
+            if (file == null || file.IsPrivate)
             {
                 throw new NotFoundException("Such file has not been found");
             }
@@ -41,9 +44,42 @@ namespace SimpleCloudStorageServer.Service
             return new Tuple<byte[], string>(await _fileService.GetFile(file.FilePath), file.FileName);
         }
 
-        public void RemoveFile()
+        public async Task<FileForUploadDto> RemoveFile(long userId, string fileName)
         {
-            throw new NotImplementedException();
+            var file = await _fileRepository.GetFileByUserIdAndFileName(userId, fileName);
+
+            if (file == null)
+            {
+                throw new FileNotFoundException();
+            }
+
+            _fileService.DeleteFile(file.FilePath);
+
+            _fileRepository.Remove(file);
+
+            await _fileRepository.SaveChanges();
+
+            _fileCachedService.RemoveFile(file.User.AppId, fileName);
+
+            return _mapper.Map<FileForUploadDto>(file);
+        }
+
+        public async Task<object> UpdateFile(long userId, string fileName, FileForUpdateDto updateDto)
+        {
+            var file = await _fileRepository.GetFileByUserIdAndFileName(userId, fileName);
+
+            if (file == null)
+            {
+                throw new FileNotFoundException();
+            }
+
+            _mapper.Map(updateDto, file);
+
+            await _fileRepository.SaveChanges();
+
+            _fileCachedService.SetFile(file.User.AppId, fileName, file);
+
+            return _mapper.Map<FileForUploadDto>(file);
         }
 
         public async Task<FileForUploadDto> UploadFile(IFormFile file, long userId)
@@ -90,6 +126,8 @@ namespace SimpleCloudStorageServer.Service
             await _fileRepository.AddAsync(fileRecord);
 
             await _fileRepository.SaveChanges();
+
+            _fileCachedService.SetFile(user.AppId, fileRecord.FileName, fileRecord);
 
             return _mapper.Map<FileForUploadDto>(fileRecord);
         }
