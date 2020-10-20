@@ -35,7 +35,6 @@ namespace SimpleCloudStorageServer.Service
             var claims = new[] {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.Username),
-                new Claim("refresh-type", true.ToString())
             };
 
             return GenerateToken(expireAt, _config.GetSection("AppSettings:RefreshToken").Value, claims);
@@ -44,8 +43,6 @@ namespace SimpleCloudStorageServer.Service
         public bool ValidateRefreshToken(string refreshToken, out int id)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-
-            SecurityToken token;
 
             var parameters = new TokenValidationParameters
             {
@@ -60,22 +57,7 @@ namespace SimpleCloudStorageServer.Service
             ClaimsPrincipal claims;
             try
             {
-                claims = tokenHandler.ValidateToken(refreshToken, parameters, out token);
-            }
-            catch (Exception)
-            {
-                id = -1;
-                return false;
-            }
-
-            try
-            {
-                var refreshType = claims.FindFirst("refresh-type")?.Value ?? null;
-                if (refreshType == null || !bool.Parse(refreshType))
-                {
-                    id = -1;
-                    return false;
-                }
+                claims = tokenHandler.ValidateToken(refreshToken, parameters, out var token);
             }
             catch (Exception)
             {

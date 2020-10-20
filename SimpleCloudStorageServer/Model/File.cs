@@ -16,6 +16,5 @@ namespace SimpleCloudStorageServer.Model
         public DateTime AddedAt { get; set; }
         public User User { get; set; }
         public long UserId { get; set; }
-
     }
 }

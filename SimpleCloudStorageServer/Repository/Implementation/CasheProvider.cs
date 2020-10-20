@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,13 +18,13 @@ namespace SimpleCloudStorageServer.Repository
     public class CasheProvider : ICacheProvider
     {
 
-        private const int _cacheMinutes = 10;
-
+        private readonly int _cacheMinutes;
         private readonly IMemoryCache _memoryCache;
 
-        public CasheProvider(IMemoryCache memoryCache)
+        public CasheProvider(IMemoryCache memoryCache, IConfiguration configuration)
         {
             _memoryCache = memoryCache;
+            _cacheMinutes = int.Parse(configuration.GetSection("AppSettings:DefaultCacheMinutesTime").Value);
         }
 
         public void ClearCache(string key)

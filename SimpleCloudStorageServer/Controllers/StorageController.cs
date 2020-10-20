@@ -35,6 +35,8 @@ namespace SimpleCloudStorageServer.Controllers
         }
 
         [HttpPost]
+        [RequestSizeLimit(15000000)]
+        [RequestFormLimits(MultipartBodyLengthLimit = 15000000)]
         public async Task<IActionResult> UploadFile(IFormFile file)
         {
             var userId = long.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
