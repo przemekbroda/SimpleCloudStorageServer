@@ -46,7 +46,7 @@ namespace SimpleCloudStorageServer.Security
                 new Claim(ClaimTypes.Role, "user"),
             };
 
-            var identity = new ClaimsIdentity(claims, nameof(ApiKeyAuth));
+            var identity = new ClaimsIdentity(claims, Options.AuthenticationType);
             var identities = new List<ClaimsIdentity> { identity };
             var principal = new ClaimsPrincipal(identities);
             var ticket = new AuthenticationTicket(principal, Options.Scheme);
